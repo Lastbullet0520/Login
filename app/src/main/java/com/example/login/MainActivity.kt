@@ -1,30 +1,28 @@
 package com.example.login
 
+import android.app.Activity
+import android.content.Context
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.width
-import androidx.compose.material3.Divider
+import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import androidx.core.content.edit
 import com.example.login.ui.theme.LoginTheme
 
 class MainActivity : ComponentActivity() {
@@ -37,53 +35,60 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    Greeting("Android")
+                    LoginTitle()
                 }
             }
         }
     }
 }
 
+
+
 @Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Column {
-        for (i in 1..10) {
-            if (i % 2 == 0) {
-                LoginTitle(i)
+fun LoginTitle() {
+    val activity = LocalContext.current as? Activity
+    val sharedPref = remember { activity?.getPreferences(Context.MODE_PRIVATE) }
+
+
+
+    Column(
+        modifier = Modifier
+            .background(Color(0xffffffff))
+            .fillMaxSize(),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        var clickCount: Int by remember {
+            val saveCount = sharedPref?.getInt("lastCount",0)
+            mutableIntStateOf(saveCount ?: 0)
+        }
+        Text(text = "Click times : $clickCount")
+        Button(onClick = { ++clickCount
+            sharedPref?.edit {
+                putInt("lastCount",clickCount)
             }
+        }) {
+            Text(text = "Increase")
+        }
+        Button(onClick = { --clickCount
+        sharedPref?.edit {
+            putInt("lastCount",clickCount)
+        }}) {
+            Text(text = "Decrease")
+        }
+        Button(onClick = { clickCount = 0
+        sharedPref?. edit {
+            putInt("lastCount",clickCount)
+        }
+        }) {
+            Text(text = "Reset")
         }
     }
 }
 
-@Composable
-fun LoginTitle(index: Int) {
-    Row {
-        Text("Compose $index 최고", fontSize = 20.sp)
-        Text(text = "국 밥충")
-        Text(text = "인텔 과정", color = Color.Blue)
-    }
-}
 
 @Preview(showBackground = true)
 @Composable
-fun WantKnowMyPersonalities() {
-    Column(
-        modifier = Modifier
-            .background(Color(0xffffffff)),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Image(
-            painter = painterResource(id = R.drawable.intp),
-            contentDescription = "intp-t"
-        )
-        Spacer(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(20.dp)
-        )
-        Image( //text 대체
-            painter = painterResource(id = R.drawable.intp_description),
-            contentDescription = "intp describe"
-        )
-    }
+fun LoginTitlePreview() {
+        LoginTitle()
+
 }
